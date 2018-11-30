@@ -1,0 +1,44 @@
+  public class MyAuthentication : ActionFilterAttribute
+    {
+
+
+        public override void OnActionExecuting(HttpActionContext actionContext)
+        {
+            var sampleErrorModel = new SampleErrorModel();
+
+            if (actionContext.Request.Headers.Any(h => h.Key == "Token"))
+            {
+
+                var token = actionContext.Request.Headers.GetValues("Token").SingleOrDefault();
+
+                string localToken;
+              
+                localToken = CreateToken(); // Function For Create Token
+                
+                if (string.CompareOrdinal(token, localToken) == 0)
+                {
+                    return;
+                }
+                
+                sampleErrorModel.ErrorCode = ErrorCode.InvalidToken;
+
+                sampleErrorModel.ErrorMsg = ErrorCode.InvalidToken.GetDescription();
+                
+                actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.OK, sampleErrorModel);
+
+            }
+            else
+            {
+                var sampleErrorModel = new ErrorMessageValidation()
+                {
+                    ErrorCode = ErrorCode.TokenIsNull,
+                    ErrorMsg = ErrorCode.TokenIsNull.GetDescription(),
+                };
+
+                actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.OK, sampleErrorModel);
+            }
+            
+       
+
+        }
+           }
